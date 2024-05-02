@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCS Soft - PFinance</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,400;0,700;1,100&display=swap"
+        class="description" class="expense" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body>
+    <header>
+        <div>
+            <img src="./assets/img/logo.png" alt="Logo RCS Soft" height="50">
+        </div>
+    </header>
+    <main class="container">
+        <section id="balance">
+            <h2 class="sr-only">Balanço</h2>
+            <div class="card">
+                <h3>
+                    <span>
+                        Entradas
+                    </span>
+                    <img src="./assets/img/income.svg" alt="Entradas">
+                </h3>
+                <p id="incomeDisplay"></p>
+            </div>
+            <div class="card">
+                <h3>
+                    <span>
+                        Saídas
+                    </span>
+                    <img src="./assets/img/expense.svg" alt="Saídas">
+                </h3>
+                <p id="expenseDisplay"></p>
+            </div>
+            <div class="card total">
+                <h3>
+                    <span>
+                        Total
+                    </span>
+                    <img src="./assets/img/total.svg" alt="Total">
+                </h3>
+                <p id="totalDisplay"></p>
+            </div>
+        </section>
+
+        <section id="transaction">
+            <div>
+                <h2 class="sr-only">Transações</h2>
+            </div>
+
+            <div class="text-end mb-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal"
+                    onclick="fillModal()">
+                    + Nova Transação
+                </button>
+            </div>
+
+            <table class="table table-striped" id="data-table">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>SubCategoria</th>
+                        <th>Valor</th>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+
+            </table>
+        </section>
+    </main>
+
+    <div class="modal modal-lg fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="modalLabel">Incluir transação</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" onsubmit="Form.submit(event)">
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label" for="description"> Descrição</label>
+                            <input class="form-control" type="text" id="description" name="description" />
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label" for="category"> Categoria</label>
+                                <select class="form-select" name="category" id="category">
+                                    <option value="">Selecione</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="subCategory"> Subcategoria</label>
+                                <select class="form-select" name="subCategory" id="subCategory">
+                                    <option value="">Selecione</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label" for="transactionType"> Tipo Transação</label>
+                                <select class="form-select" name="transactionType" id="transactionType">
+                                    <option value="">Selecione</option>
+                                    <option value="income">Receita</option>
+                                    <option value="expense">Despesa</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="amount"> Valor</label>
+                                <input class="form-control" type="number" step="0.01" id="amount" name="amount"
+                                    placeholder="0,00" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="date"> Data</label>
+                                <input class="form-control" type="date" id="date" name="date" placeholder="Data" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>@2024 - RCS Soft</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="./assets/js/scripts.js"></script>
+</body>
+
+</html>
