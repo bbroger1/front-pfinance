@@ -1,0 +1,128 @@
+/* Global ====================================================*/
+:root {
+	--dark-blue: #363f5f;
+	--green: #49aa26;
+	--lightgreen: #3dd705;
+	--red: #e92929;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 93.75%;
+	/*15px*/
+}
+
+body {
+	background: #f0f2f5;
+	font-family: "Poppins", sans-serif;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+.container {
+	width: min(90vw, 80%);
+	margin: auto;
+}
+
+/* Links & Buttons ===================================================*/
+a {
+	color: #ffc03d;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #fccd67;
+}
+
+button:hover {
+	background-color: var(--lightgreen);
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+/* Header =======================================================*/
+header {
+	background: #5a9db1;
+	padding: 2rem 0 10rem;
+	color: #f0f2f5;
+}
+
+header h1 {
+	font-size: 50px;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Balance =======================================================*/
+#balance {
+	margin-top: -8rem;
+}
+
+#balance h2 {
+	color: white;
+	margin-top: 0;
+}
+
+/* Cards =======================================================*/
+.card {
+	background: white;
+	padding: 1.5rem 2rem;
+	border-radius: 0.25rem;
+	margin-bottom: 2rem;
+	color: var(--dark-blue);
+}
+
+.card h3 {
+	font-weight: normal;
+	font-size: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.card p {
+	font-size: 2rem;
+	line-height: 3rem;
+	margin-top: 1rem;
+}
+
+.card.total {
+	color: white;
+}
+
+/* Footer =======================================================*/
+footer {
+	text-align: center;
+	padding: 4rem 0 2rem;
+	color: var(--dark-blue);
+	opacity: 0.6;
+}
+
+/* Responsive =======================================================*/
+@media (min-width: 800px) {
+	html {
+		font-size: 87.5%;
+	}
+
+	#balance {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+}
