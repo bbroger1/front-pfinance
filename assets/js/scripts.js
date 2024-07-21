@@ -18,11 +18,11 @@ const Transaction = {
 						Transaction.all = data.data;
 						return Transaction.all;
 					} else {
-						console.log("populateTransactions error: ", error);
+						console.log("populateTransactions linha 21");
 					}
 				})
 				.catch((error) => {
-					console.log("populateTransactions error[2]: ", error);
+					console.error("populateTransactions error[2]: ", error);
 				});
 		} catch (error) {
 			console.error("populateTransactions error[3]:", error);
@@ -43,11 +43,11 @@ const Transaction = {
 						Transaction.all = data.data;
 						return Transaction.all;
 					} else {
-						console.log("allTransactions error: ", error);
+						console.log("allTransactions linha 46");
 					}
 				})
 				.catch((error) => {
-					console.log("allTransactions error[2]: ", error);
+					console.error("allTransactions error[2]: ", error);
 				});
 		} catch (error) {
 			console.error("allTransactions error[3]:", error);
@@ -71,11 +71,11 @@ const Transaction = {
 						Transaction.all.forEach(DOM.addTransaction);
 						DOM.updateBalance();
 					} else {
-						console.log("FilterTransactions error: ", error);
+						console.log("FilterTransactions linha 74");
 					}
 				})
 				.catch((error) => {
-					console.log("FilterTransactions error[2]: ", error);
+					console.error("FilterTransactions error[2]: ", error);
 				});
 		} catch (error) {
 			console.error("FilterTransactions error[3]:", error);
@@ -257,21 +257,15 @@ const DOM = {
 		const html = `
 			<td class="date">${transaction_date}</td>
 			<td>${transaction.description}</td>
-			<td>
-				<select class="form-select" name="category" id="category-table">
-					
-                </select>
-			</td>
-			<td>
-				<select class="form-select" name="subcategory" id="subcategory-table">
-					
-                </select>
-			</td>
+			<td>${transaction.category}</td>
+			<td>${transaction.subcategory}</td>
 			<td class="text-center">${amount}</td>
 			<td class="text-center">${transactionType}</td>
 			<td class="text-center">
-				<img src="./assets/img/editar.png" alt="Editar Transação" width="23" title="Editar" class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#modal-edit" onclick="transactionEdit(${transaction.id})">
-				<img src="./assets/img/deletar.png" alt="Remover Transação" width="20" title="Excluir" class="cursor-pointer" data-bs-toggle="modal" data-bs-target="#modal-delete" onclick="transactionDelete(${transaction.id})">
+				<img src="./assets/img/editar.png" alt="Editar Transação" width="23" title="Editar" class="cursor-pointer" 
+					data-bs-toggle="modal" data-bs-target="#modal-edit" onclick="transactionEdit(${transaction.id})">
+				<img src="./assets/img/deletar.png" alt="Remover Transação" width="20" title="Excluir" class="cursor-pointer" 
+					data-bs-toggle="modal" data-bs-target="#modal-delete" onclick="transactionDelete(${transaction.id})">
 			</td>
 		`;
 
@@ -307,8 +301,8 @@ const DOM = {
 
 const Utils = {
 	formatAmount(value) {
-		//value = Number(value) * 100;
-		value = Number(value);
+		value = Number(value) * 100;
+		//value = Number(value);
 		return value;
 	},
 
@@ -590,7 +584,7 @@ function fillModal() {
 
 //buscar as categorias no banco
 function getCategories() {
-	try {
+    try {
 		fetch(`${API_BASE_URL}/categories`, {
 			method: "POST",
 			headers: {
@@ -603,11 +597,11 @@ function getCategories() {
 					let categories = data.data;
 					return categories;
 				} else {
-					console.log("getCategories error: ", error);
+					console.log("getCategories linha 600");
 				}
 			})
 			.catch((error) => {
-				console.log("getCategories error[2]: ", error);
+				console.error("getCategories error[2]: ", error);
 			});
 	} catch (error) {
 		console.error("getCategories error[3]:", error);
@@ -617,7 +611,14 @@ function getCategories() {
 //preencher as subcategorias ao selecionar a categoria
 document.getElementById("category").addEventListener("change", function () {
 	var categoryId = this.value;
-	fetch(`${API_BASE_URL}/subcategories/` + categoryId)
+	fetch(`${API_BASE_URL}/subcategories/` + categoryId,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-CSRFToken": csrfToken,
+			}
+		})
 		.then((response) => response.json())
 		.then((data) => {
 			var subcategorySelect = document.getElementById("subcategory");
@@ -767,39 +768,28 @@ async function transactionEdit(id) {
 		if (transactionResponse.status === 200) {
 			const transactionData = await transactionResponse.json();
 
-			document.getElementById("editTransactionId").value =
-				transactionData.data.id;
-			document.getElementById("editDescription").value =
-				transactionData.data.description;
+			document.getElementById("editTransactionId").value = transactionData.data.id;
+			document.getElementById("editDescription").value = transactionData.data.description;
+
 			let amount = Number(transactionData.data.amount) / 100;
 			document.getElementById("editAmount").value = amount;
-			const dateObject = new Date(transactionData.data.created_at);
-			const year = dateObject.getFullYear();
-			const month = dateObject.getMonth() + 1;
-			const day = dateObject.getDate();
 
-			document.getElementById("editDate").value = `${year}-${month
-				.toString()
-				.padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+			let dateObj = new Date(transactionData.data.transaction_date);
+			let formattedDate = dateObj.toISOString().split('T')[0];
+			document.getElementById("editDate").value = formattedDate
 
-			const transactionTypeSelect = document.getElementById(
-				"editTransactionType"
-			);
+			const transactionTypeSelect = document.getElementById("editTransactionType");
 			const transactionTypes = [
 				{ value: "receita", text: "Receita" },
 				{ value: "despesa", text: "Despesa" },
 			];
-
 			transactionTypeSelect.innerHTML = "";
 			for (const transactionTypeOption of transactionTypes) {
 				const optionElement = document.createElement("option");
 				optionElement.value = transactionTypeOption.value;
 				optionElement.text = transactionTypeOption.text;
 
-				if (
-					transactionTypeOption.id ===
-					transactionData.data.transactionType
-				) {
+				if (transactionTypeOption.value === transactionData.data.transaction_type.toLowerCase()) {
 					optionElement.selected = true;
 				}
 
@@ -807,7 +797,14 @@ async function transactionEdit(id) {
 			}
 
 			const categoriesResponse = await fetch(
-				`${API_BASE_URL}/categories`
+				`${API_BASE_URL}/categories`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-CSRFToken": csrfToken,
+					}
+				}
 			);
 
 			if (categoriesResponse.status === 200) {
@@ -830,7 +827,14 @@ async function transactionEdit(id) {
 				const selectedCategoryId = transactionData.data.category_id;
 
 				const subcategoriesResponse = await fetch(
-					`${API_BASE_URL}/subcategories/${selectedCategoryId}`
+					`${API_BASE_URL}/subcategories/${selectedCategoryId}`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-CSRFToken": csrfToken,
+						}
+					}
 				);
 
 				if (subcategoriesResponse.status === 200) {
