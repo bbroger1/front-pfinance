@@ -18,7 +18,7 @@ const Transaction = {
 						Transaction.all = data.data;
 						return Transaction.all;
 					} else {
-						console.log("populateTransactions linha 21");
+						console.error("populateTransactions linha 21");
 					}
 				})
 				.catch((error) => {
@@ -43,7 +43,7 @@ const Transaction = {
 						Transaction.all = data.data;
 						return Transaction.all;
 					} else {
-						console.log("allTransactions linha 46");
+						console.error("allTransactions linha 46");
 					}
 				})
 				.catch((error) => {
@@ -71,7 +71,7 @@ const Transaction = {
 						Transaction.all.forEach(DOM.addTransaction);
 						DOM.updateBalance();
 					} else {
-						console.log("FilterTransactions linha 74");
+						console.error("FilterTransactions linha 74");
 					}
 				})
 				.catch((error) => {
@@ -90,7 +90,7 @@ const Transaction = {
 					"Content-Type": "application/json",
 					"X-CSRFToken": this.setCsrfToken(),
 				},
-				body: JSON.stringify(transaction), // Converte a transação em JSON e envia para a API
+				body: JSON.stringify(transaction),
 			})
 				.then((response) => response.json())
 				.then((data) => {
@@ -150,7 +150,7 @@ const Transaction = {
 				.then((data) => {
 					if (data.status == "success") {
 						closeModal("modal-edit");
-						App.reload();
+						DOM.updateTransactionInDOM(transaction);
 					} else {
 						console.error("Error updating transaction:", response);
 					}
@@ -245,6 +245,23 @@ const DOM = {
 		}
 	},
 
+	updateTransactionInDOM(transaction) {
+		const row = document.getElementById(`${transaction.id}`);
+		const transactionType = Utils.formatTransactionType(
+			transaction.transaction_acronym
+		);
+
+		const amount = Utils.formatCurrency(transaction.amount)
+
+		if (row) {
+			row.querySelector(".description").textContent = transaction.description;
+			row.querySelector(".category").textContent = transaction.category_name;
+			row.querySelector(".subcategory").textContent = transaction.subcategory_name;
+			row.querySelector(".transaction_type").innerHTML = transactionType;
+			row.querySelector(".amount").textContent = amount;
+		}
+	},
+
 	innerHTMLTransaction(transaction) {
 		const amount = Utils.formatCurrency(transaction.amount);
 		const transaction_date = Utils.formatDatetime(
@@ -256,11 +273,11 @@ const DOM = {
 
 		const html = `
 			<td class="date">${transaction_date}</td>
-			<td>${transaction.description}</td>
-			<td>${transaction.category}</td>
-			<td>${transaction.subcategory}</td>
-			<td class="text-center">${amount}</td>
-			<td class="text-center">${transactionType}</td>
+			<td class="description">${transaction.description}</td>
+			<td class="category">${transaction.category}</td>
+			<td class="subcategory">${transaction.subcategory}</td>
+			<td class="text-center amount">${amount}</td>
+			<td class="text-center transaction_type">${transactionType}</td>
 			<td class="text-center">
 				<img src="./assets/img/editar.png" alt="Editar Transação" width="23" title="Editar" class="cursor-pointer" 
 					data-bs-toggle="modal" data-bs-target="#modal-edit" onclick="transactionEdit(${transaction.id})">
@@ -334,7 +351,7 @@ const Utils = {
 	},
 
 	formatTransactionType(type) {
-		if (type == "despesa") {
+		if (type == "despesa" || type == "D") {
 			return "<span style='color: red'>D</span>";
 		}
 
@@ -350,7 +367,6 @@ const Form = {
 	amount: document.querySelector("input#amount"),
 	date: document.querySelector("input#date"),
 
-	// Pegar e retornar os valores:
 	getValues() {
 		return {
 			description: Form.description.value,
@@ -484,12 +500,24 @@ const FormEdit = {
 
 		amount = Utils.formatAmount(amount);
 
+		const categoryName = FormEdit.category.options[FormEdit.category.selectedIndex].text;
+		const subcategoryName = FormEdit.subcategory.options[FormEdit.subcategory.selectedIndex].text;
+		let transaction_acronym = ''
+		if(transaction_type === "receita"){
+			transaction_acronym = 'R'
+		} else{
+			transaction_acronym = 'D'
+		}
+
 		return {
 			id,
 			description,
 			category_id,
+			category_name: categoryName,
 			subcategory_id,
+			subcategory_name: subcategoryName,
 			transaction_type,
+			transaction_acronym,
 			amount,
 		};
 	},
@@ -597,7 +625,7 @@ function getCategories() {
 					let categories = data.data;
 					return categories;
 				} else {
-					console.log("getCategories linha 600");
+					console.error("getCategories linha 600");
 				}
 			})
 			.catch((error) => {
@@ -609,32 +637,41 @@ function getCategories() {
 }
 
 //preencher as subcategorias ao selecionar a categoria
+function updateSubcategories(categoryId, subcategoryId) {
+    fetch(`${API_BASE_URL}/subcategories/` + categoryId, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+        }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        var subcategorySelect = document.getElementById(subcategoryId);
+        subcategorySelect.innerHTML = "";
+        var defaultOption = document.createElement("option");
+        defaultOption.text = "Selecione";
+        subcategorySelect.add(defaultOption);
+        
+        data.data.forEach(function (subcategory) {
+            var option = document.createElement("option");
+            option.text = subcategory.name;
+            option.value = subcategory.id;
+            subcategorySelect.add(option);
+        });
+    });
+}
+
+// Adiciona o evento para a seleção da categoria de lançamento
 document.getElementById("category").addEventListener("change", function () {
-	var categoryId = this.value;
-	fetch(`${API_BASE_URL}/subcategories/` + categoryId,
-		{
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"X-CSRFToken": csrfToken,
-			}
-		})
-		.then((response) => response.json())
-		.then((data) => {
-			var subcategorySelect = document.getElementById("subcategory");
-			subcategorySelect.innerHTML = "";
-			// Adiciona a opção 'Selecione'
-			var defaultOption = document.createElement("option");
-			defaultOption.text = "Selecione";
-			subcategory.add(defaultOption);
-			// Adiciona as subcategorias
-			data.data.forEach(function (subcategory) {
-				var option = document.createElement("option");
-				option.text = subcategory.name;
-				option.value = subcategory.id;
-				subcategorySelect.add(option);
-			});
-		});
+    var categoryId = this.value;
+    updateSubcategories(categoryId, "subcategory");
+});
+
+// Adiciona o evento para a seleção da categoria de edição
+document.getElementById("editCategory").addEventListener("change", function () {
+    var categoryId = this.value;
+    updateSubcategories(categoryId, "editSubcategory");
 });
 
 //preencher o extrato com os dados do ano e mês corrente na abertura da página
